@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Observable } from "rxjs";
 
+import "../shareResults";
 
 @Injectable()
 export class PriceService {
@@ -14,7 +15,7 @@ export class PriceService {
 		this.currencyPairs = ['USD EUR', 'USD JPY', 'GBP USD', 'USD CAD'];
 
 		this.randomPrices$ = Observable.interval(50)
-			.map(() => (Math.random() * 100));
+			.map(() => (Math.random() * 100)).shareResults();
 			/*.range(1, 10000)
 			.concatMap(function (x) {
 				return Observable.of(x).delay(50)
