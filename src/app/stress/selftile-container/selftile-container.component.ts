@@ -5,18 +5,17 @@ import {
 import { Observable, Subscription } from 'rxjs';
 import { PriceService } from "../../home/price.service";
 import { AppState } from "../../app.service";
-
+import { NgZone } from '@angular/core';
 
 @Component({
-	           selector: 'self-tile-container',
-	           templateUrl: './selftile-container.component.html',
-	           styleUrls: ['./selftile-container.component.css'],
-	           changeDetection : ChangeDetectionStrategy.OnPush
-           })
+	selector: 'self-tile-container',
+	templateUrl: './selftile-container.component.html',
+	styleUrls: ['./selftile-container.component.css'],
+})
 export class SelfTileContainerComponent implements OnInit, OnDestroy {
 
 	currencyPairs: Array<string>;
-	state: any = {selectedPairs: []};
+	state: any = { selectedPairs: [] };
 	randomNumbers: Observable<number>;
 	disposables: Subscription;
 	selectedPairs: Array<any>;
@@ -24,25 +23,31 @@ export class SelfTileContainerComponent implements OnInit, OnDestroy {
 	//state: Object;
 	frequency: number = 50;
 
-	constructor(private  priceService: PriceService, private appState: AppState, private cd: ChangeDetectorRef) {
+	constructor(private priceService: PriceService, private appState: AppState, private cd: ChangeDetectorRef, private zone: NgZone) {
 
 
 		this.state = this.appState.get();
 
-		if(!this.state.hasOwnProperty('selectedPairs')){
+		if (!this.state.hasOwnProperty('selectedPairs')) {
 			this.state = {
-				selectedPairs : []
+				selectedPairs: []
 			};
 			this.appState.set('selectedPairs', this.state.selectedPairs);
 		}
+		cd.detach();
+		zone.runOutsideAngular(() => {
+		setInterval(() => {
+			console.log("cd marked to happen");
+			this.cd.markForCheck();
+			this.cd.detectChanges();
+			
+		 }, 50);
+		});
+
 
 	}
 
 	ngOnInit(): void {
-
-		setInterval(() => {
-			this.cd.markForCheck();
-		}, 50);
 
 		this.currencyPairs = ['USD EUR', 'USD JPY', 'GBP USD', 'USD CAD'];
 
@@ -51,8 +56,8 @@ export class SelfTileContainerComponent implements OnInit, OnDestroy {
 		if (this.state.selectedPairs.length == 0) {
 
 			this.state.selectedPairs.push({
-				                        key: 'USD EUR'
-			                        });
+				key: 'USD EUR'
+			});
 
 			this.appState.set('selectedPairs', this.state.selectedPairs);
 
@@ -76,7 +81,7 @@ export class SelfTileContainerComponent implements OnInit, OnDestroy {
 	}
 
 	stop() {
-		if(this.disposables) {
+		if (this.disposables) {
 			this.disposables.unsubscribe();
 		}
 		this.priceService.stopWorkerPrices();
@@ -85,24 +90,24 @@ export class SelfTileContainerComponent implements OnInit, OnDestroy {
 	addPair(selectedPair) {
 		//for (let i = 0; i < 10; i++) {
 		if (!selectedPair) {
-			this.currencyPairs.forEach((pair)=> {
+			this.currencyPairs.forEach((pair) => {
 				this.state.selectedPairs.push({
-					                              key: pair,
-					                              streamType: this.isWorker ? 'worker' :'rx'
-				                              });
+					key: pair,
+					streamType: this.isWorker ? 'worker' : 'rx'
+				});
 			});
 		} else {
 			this.state.selectedPairs.push({
-				                              key: selectedPair,
-				                              streamType: this.isWorker ? 'worker' : 'rx'
-			                              });
+				key: selectedPair,
+				streamType: this.isWorker ? 'worker' : 'rx'
+			});
 		}
 		this.appState.set('selectedPairs', this.state.selectedPairs);
 
 
 	}
 
-	clearAll(){
+	clearAll() {
 		this.stop();
 		this.state.selectedPairs = [];
 		this.appState.set('selectedPairs', this.state.selectedPairs);

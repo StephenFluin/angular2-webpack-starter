@@ -15,7 +15,6 @@ import { XLarge } from './x-large';
   styleUrls: [ './stress.component.css' ],
   // Every Angular template is first compiled by the browser before Angular runs it's compiler
   templateUrl: './stress.component.html',
-  changeDetection : ChangeDetectionStrategy.OnPush
 })
 export class StressComponent {
   // Set our default values

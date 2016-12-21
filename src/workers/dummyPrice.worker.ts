@@ -1,7 +1,7 @@
 //RxJS
 import { Observable } from "rxjs";
 
-import "../shareResults";
+import "../app/shareResults";
 
 export class DummyPriceWorker{
 	randomPrices$: Observable<number>;
